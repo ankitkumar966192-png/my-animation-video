@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2050 - इंसान का भविष्य</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;background:#050816;color:white;
+  font-family:Arial,sans-serif;text-align:center;
+}
+h2{margin:12px;font-size:22px}
+canvas{
+  display:block;width:100%;max-width:1100px;
+  margin:auto;background:#080f2b;
+}
+button{
+  margin:12px;padding:12px 25px;border:0;
+  border-radius:8px;background:#00d9ff;
+  color:#00121c;font-weight:bold;font-size:16px;
+}
+#status{font-size:14px;color:#b9eaff;margin:5px}
+</style>
+</head>
+<body>
+<h2>2050 में इंसान का भविष्य</h2>
+<canvas id="screen" width="1920" height="1080"></canvas>
+<div id="status">वीडियो शुरू हो रहा है...</div>
+<button onclick="restart()">फिर से चलाएँ</button>
+
+<script>
+const canvas=document.getElementById("screen");
+const ctx=canvas.getContext("2d");
+let start=performance.now();
+let paused=false;
+let pauseTime=0;
+
+const W=1920,H=1080;
+
+function text(t,x,y,size=52,color="white"){
+ ctx.fillStyle=color;
+ ctx.font=`bold ${size}px Arial`;
+ ctx.textAlign="center";
+ ctx.fillText(t,x,y);
+}
+function line(x1,y1,x2,y2,color="white",w=12){
+ ctx.strokeStyle=color;ctx.lineWidth=w;
+ ctx.lineCap="round";
+ ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+}
+function circle(x,y,r,color){
+ ctx.fillStyle=color;ctx.beginPath();
+ ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+}
+function rect(x,y,w,h,color){
+ ctx.fillStyle=color;ctx.fillRect(x,y,w,h);
+}
+function stick(x,y,s=1,walk=0,color="white"){
+ ctx.strokeStyle=color;ctx.lineWidth=15*s;
+ ctx.lineCap="round";
+ // head
+ circle(x,y-115*s,32*s,color);
+ // body
+ line(x,y-80*s,x,y+20*s,color,15*s);
+ // arms
+ line(x,y-55*s,x-45*s+Math.sin(walk)*20*s,y-5*s,color,12*s);
+ line(x,y-55*s,x+45*s-Math.sin(walk)*20*s,y-5*s,color,12*s);
+ // legs
+ line(x,y+20*s,x-35*s+Math.sin(walk)*30*s,y+90*s,color,14*s);
+ line(x,y+20*s,x+35*s-Math.sin(walk)*30*s,y+90*s,color,14*s);
+}
+function stars(){
+ for(let i=0;i<75;i++){
+  let x=(i*251)%W,y=(i*137)%600;
+  circle(x,y,3,"#ffffff");
+ }
+}
+function city(){
+ rect(0,0,W,H,"#09132f");stars();
+ for(let i=0;i<16;i++){
+  let x=i*130;
+  rect(x,500-(i%4)*45,105,580,"#152b54");
+  for(let j=0;j<5;j++)
+   for(let k=0;k<3;k++)
+    rect(x+15+k*28,530-(i%4)*45+j*65,12,20,"#00d9ff");
+ }
+ rect(0,930,W,150,"#101a2c");
+ line(0,930,W,930,"#00d9ff",5);
+}
+function flyingCar(t){
+ city();
+ let x=((t*180)%2300)-200;
+ // flying car
+ rect(x,350,260,75,"#00c9ff");
+ rect(x+55,300,145,55,"#b6f5ff");
+ rect(x+75,310,45,35,"#173b68");
+ rect(x+130,310,45,35,"#173b68");
+ circle(x+55,430,25,"#111111");
+ circle(x+210,430,25,"#111111");
+ line(x+20,445,x+240,445,"#00eaff",6);
+ stick(850,800,1,Math.sin(t*4));
+ text("भविष्य की उड़ती कारें",960,150,62,"#55eaff");
+}
+function robot(t){
+ rect(0,0,W,H,"#10152e");
+ rect(0,850,W,230,"#26334b");
+ // house
+ rect(1150,350,500,500,"#263c63");
+ rect(1220,430,140,160,"#00cfff");
+ rect(1450,430,140,160,"#00cfff");
+ // robot
+ let x=650+Math.sin(t*2)*25;
+ rect(x-65,520,130,170,"#c9e8ff");
+ circle(x,470,75,"#d8f4ff");
+ circle(x-25,460,10,"#00bfff");
+ circle(x+25,460,10,"#00bfff");
+ line(x-50,570,x-130,660,"#c9e8ff",25);
+ line(x+50,570,x+130,660,"#c9e8ff",25);
+ line(x-35,690,x-55,830,"#c9e8ff",25);
+ line(x+35,690,x+55,830,"#c9e8ff",25);
+ // person
+ stick(300,790,1,Math.sin(t*3));
+ text("घर के काम करेंगे रोबोट",960,150,62,"#67eaff");
+ text("खाना • सफाई • मदद",960,230,38,"white");
+}
+function doctor(t){
+ rect(0,0,W,H,"#071b35");
+ // medical screen
+ rect(1100,300,520,440,"#123e62");
+ rect(1140,340,440,350,"#06182b");
+ // heart monitor
+ line(1170,520,1240,520,"#00ffb3",8);
+ line(1240,520,1280,450,"#00ffb3",8);
+ line(1280,450,1330,600,"#00ffb3",8);
+ line(1330,600,1390,520,"#00ffb3",8);
+ line(1390,520,1540,520,"#00ffb3",8);
+ // doctor
+ stick(650,800,1,Math.sin(t*2),"#ffffff");
+ circle(650,685,38,"#00d9ff");
+ text("AI डॉक्टर की मदद",960,150,62,"#5effce");
+ text("बीमारियों का तेज इलाज",960,230,42,"white");
+}
+function rocket(t){
+ rect(0,0,W,H,"#050b24");stars();
+ // earth
+ circle(1500,850,260,"#1379ba");
+ circle(1440,790,60,"#2dbb87");
+ circle(1580,900,80,"#2dbb87");
+ // rocket
+ ctx.save();
+ ctx.translate(850,550);
+ ctx.rotate(-0.35);
+ rect(-55,-170,110,300,"#eeeeee");
+ circle(0,-170,55,"#ff5050");
+ rect(-55,50,110,70,"#ff5050");
+ circle(0,-50,28,"#00bfff");
+ ctx.fillStyle="#ffae00";
+ ctx.beginPath();ctx.moveTo(-35,120);ctx.lineTo(0,300+Math.sin(t*15)*25);
+ ctx.lineTo(35,120);ctx.fill();
+ ctx.restore();
+ text("इंसान अंतरिक्ष में!",960,150,68,"#8eeaff");
+}
+function ending(){
+ rect(0,0,W,H,"#080e27");stars();
+ circle(960,450,220,"#122d57");
+ stick(960,720,1.5,0,"#ffffff");
+ text("लेकिन एक सवाल है...",960,140,65,"#00eaff");
+ text("मशीनें सब काम करेंगी,",960,850,48,"white");
+ text("तो इंसान क्या करेगा?",960,930,58,"#ffdc65");
+}
+function opening(){
+ rect(0,0,W,H,"#07132d");stars();
+ city();
+ rect(0,0,W,1080,"rgba(0,0,0,0.35)");
+ stick(960,760,1.6,0);
+ text("कल्पना कीजिए...",960,180,70,"#ffffff");
+ text("साल 2050",960,290,100,"#00eaff");
+}
+function draw(now){
+ if(paused){requestAnimationFrame(draw);return;}
+ let elapsed=(now-start)/1000;
+ if(elapsed>=60){
+  elapsed=60;
+  document.getElementById("status").textContent="वीडियो समाप्त — फिर से चलाएँ";
+ }else{
+  document.getElementById("status").textContent=
+   "सीन चल रहा है: "+Math.floor(elapsed)+" / 60 सेकंड";
+ }
+ let t=elapsed;
+ if(t<10) opening();
+ else if(t<20) flyingCar(t-10);
+ else if(t<35) robot(t-20);
+ else if(t<45) doctor(t-35);
+ else if(t<52) rocket(t-45);
+ else ending();
+
+ // subtitles
+ let captions=[
+  [0,10,"दुनिया पूरी तरह बदल चुकी होगी!"],
+  [10,20,"सड़क पर नहीं, हवा में चलेंगी कारें!"],
+  [20,35,"रोबोट संभालेंगे घर के काम!"],
+  [35,45,"AI डॉक्टर करेगा इलाज में मदद!"],
+  [45,52,"शायद इंसान अंतरिक्ष में भी रहेगा!"],
+  [52,60,"भविष्य आसान होगा या मुश्किल?"]
+ ];
+ let cap=captions.find(c=>t>=c[0]&&t<c[1]);
+ if(cap){
+  rect(100,970,1720,85,"rgba(0,0,0,0.7)");
+  text(cap[2],960,1030,40,"#ffffff");
+ }
+ requestAnimationFrame(draw);
+}
+function restart(){
+ start=performance.now();
+ document.getElementById("status").textContent="वीडियो फिर से शुरू...";
+}
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>
